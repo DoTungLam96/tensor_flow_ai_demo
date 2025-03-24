@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 import 'dart:isolate';
 import 'package:camera/camera.dart';
@@ -20,6 +18,7 @@ class IsolateInference {
   Future<void> start() async {
     _isolate = await Isolate.spawn(entryPoint, _receivePort.sendPort, debugName: _debugName);
     _sendPort = await _receivePort.first;
+
   }
 
   Future<void> close() async {

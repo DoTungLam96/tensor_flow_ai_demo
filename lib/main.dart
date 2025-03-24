@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
+import 'package:tensor_flow_ai/ui/camera.dart';
 import 'helper/image_classification_helper.dart';
 import 'helper/permission_handler.dart';
 
@@ -64,18 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  initPages() async {
-    // _widgetOptions = [const GalleryScreen()];
-
-    // if (cameraIsAvailable) {
-    //   // get list available camera
-    //   cameraDescription = (await availableCameras()).first;
-    //   _widgetOptions!.add(CameraScreen(camera: cameraDescription));
-    // }
-
-    // setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,36 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     if (classification != null) ...[
-                      if (classification != null)
-                        ...(classification!.entries.toList()
-                              ..sort(
-                                (a, b) => a.value.compareTo(b.value),
-                              ))
-                            .reversed
-                            .take(3)
-                            .map(
-                              (e) => Container(
-                                padding: const EdgeInsets.all(8),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      e.key,
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      e.value.toStringAsFixed(2),
-                                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
+                      renderResult(),
                     ],
                     if (classification == null) ...[
                       Text(
                         aiResult,
-                        style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ]
                   ],
@@ -165,6 +131,35 @@ class _HomeScreenState extends State<HomeScreen> {
           // Show model information
         ],
       ),
+    );
+  }
+
+  Widget renderResult() {
+    final list = (classification!.entries.toList()
+          ..sort(
+            (a, b) => b.value.compareTo(a.value),
+          ))
+        .take(3);
+
+    return Column(
+      children: list.map((e) {
+        return Container(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Text(
+                e.key,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Text(
+                e.value.toStringAsFixed(2),
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              )
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -191,7 +186,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         InkWell(
-          onTap: () {},
+          onTap: () async {
+            if (cameraIsAvailable) {
+              // get list available camera
+              cameraDescription = (await availableCameras()).first;
+            }
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CameraScreen(
+                          camera: cameraDescription,
+                        )));
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
             decoration: BoxDecoration(
@@ -256,4 +263,8 @@ class _HomeScreenState extends State<HomeScreen> {
     classification = null;
     setState(() {});
   }
+}
+
+mixin OddDetectorMixin {
+  void findItem(String item);
 }

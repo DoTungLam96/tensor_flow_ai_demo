@@ -145,3 +145,9 @@ class CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver 
     );
   }
 }
+
+
+
+
+
+
